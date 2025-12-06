@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
+import { useGlobalStore } from "~/stores/globalStore";
 
 type Props = {
   images: File[];
@@ -6,9 +7,17 @@ type Props = {
 };
 
 export default function ImageComparison({ images, onClose }: Props) {
+  const setOverflow = useGlobalStore((state) => state.setOverflow);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [position, setPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setOverflow(false);
+    return () => {
+      setOverflow(true);
+    };
+  }, [setOverflow]);
 
   const urls = useMemo(
     () => images.map((f) => URL.createObjectURL(f)),
@@ -76,12 +85,12 @@ export default function ImageComparison({ images, onClose }: Props) {
         <div
           ref={containerRef}
           className="relative w-full h-96 overflow-hidden rounded-lg bg-gray-800 cursor-col-resize select-none"
-          onMouseDown={(e) => handleMouseDown(e)}
-          onMouseMove={(e) => handleMouseMove(e)}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          onTouchStart={(e) => handleTouchStart(e)}
-          onTouchMove={(e) => handleTouchMove(e)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           <img

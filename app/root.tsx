@@ -11,6 +11,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Navbar from "./components/standard/navbar";
 import Footer from "./components/standard/footer";
+import { useGlobalStore } from "./stores/globalStore";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -26,6 +27,8 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const overflow = useGlobalStore((state) => state.overflow);
+
   return (
     <html lang="en">
       <head>
@@ -34,7 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className={overflow ? "overflow-y-auto" : "overflow-y-hidden"}>
         <Navbar />
         {children}
         <Footer />
