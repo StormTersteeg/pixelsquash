@@ -11,7 +11,7 @@ export default function ImageSelect() {
         type="file"
         accept="image/*"
         onChange={(e) => setImages(Array.from(e.target.files ?? []))}
-        className="file-input bg-gray-800 rounded-xl w-full border-none mb-5"
+        className="file-input bg-gray-800 rounded-xl w-full mb-5"
       />
       <div className="bg-gray-800 p-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 rounded-xl max-h-[384px] min-h-[256px] overflow-y-auto">
         {images.map((f) => (

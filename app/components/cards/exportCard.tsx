@@ -91,7 +91,7 @@ export default function ExportCard({
 
       <div
         role="alert"
-        className={`alert alert-success alert-dash ${images.length == compressedImages.length ? "" : "hidden"}`}
+        className={`alert alert-success alert-dash ${compressedImages.length != 0 && images.length == compressedImages.length ? "" : "hidden"}`}
       >
         <span>
           From {(totalSizeOf(images) / 1000000).toFixed(2) + "MB"} to{" "}
