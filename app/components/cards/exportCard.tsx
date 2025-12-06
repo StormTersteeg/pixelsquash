@@ -4,6 +4,7 @@ import { useOptionStore } from "~/stores/optionsStore";
 import { compressImage } from "~/utils/compression";
 import { downloadAsZip, totalSizeOf } from "~/utils/file";
 import ImagePreview from "../imagePreview";
+import ImageComparison from "../imageComparison";
 
 export default function ExportCard({
   className,
@@ -17,6 +18,7 @@ export default function ExportCard({
   const maxHeight = useOptionStore((s) => s.maxHeight);
 
   const [progress, setProgress] = useState(0);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   async function process() {
     setProgress(0);
@@ -34,6 +36,9 @@ export default function ExportCard({
     setCompressedImages(compressedFiles);
     setProgress(0);
   }
+
+  const canShowResult =
+    compressedImages.length !== 0 && images.length === compressedImages.length;
 
   return (
     <div
@@ -67,26 +72,36 @@ export default function ExportCard({
         }
         onClick={() => downloadAsZip(compressedImages, "images.zip")}
       >
-        Download
+        Download All
       </button>
 
-      {compressedImages.length != 0 &&
-        images.length == compressedImages.length && (
-          <>
-            <div role="alert" className="alert alert-success alert-dash mb-4">
-              <span>
-                From {(totalSizeOf(images) / 1000000).toFixed(2) + "MB"} to{" "}
-                {(totalSizeOf(compressedImages) / 1000000).toFixed(2) + "MB"} (
-                {(
-                  (totalSizeOf(compressedImages) / totalSizeOf(images)) *
-                  100
-                ).toFixed(0)}
-                %)
-              </span>
-            </div>
-            <ImagePreview images={compressedImages} />
-          </>
-        )}
+      {canShowResult && (
+        <>
+          <div role="alert" className="alert alert-success alert-dash mb-4">
+            <span>
+              From {(totalSizeOf(images) / 1000000).toFixed(2) + "MB"} to{" "}
+              {(totalSizeOf(compressedImages) / 1000000).toFixed(2) + "MB"} (
+              {(
+                100 -
+                (totalSizeOf(compressedImages) / totalSizeOf(images)) * 100
+              ).toFixed(0)}
+              %)
+            </span>
+          </div>
+
+          <ImagePreview
+            images={compressedImages}
+            onPreview={(_, index) => setPreviewIndex(index)}
+          />
+
+          {previewIndex !== null && (
+            <ImageComparison
+              images={[images[previewIndex], compressedImages[previewIndex]]}
+              onClose={() => setPreviewIndex(null)}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -19,3 +19,8 @@ export async function downloadAsZip(files: File[], name: string) {
   const content = await zip.generateAsync({ type: "blob" });
   saveAs(content, name);
 }
+
+export async function download(file: File) {
+  const buffer = new Blob([await file.arrayBuffer()], { type: file.type });
+  saveAs(buffer, file.name);
+}

@@ -22,7 +22,7 @@ export default function OptionsCard({
         <fieldset className="fieldset">
           <legend className="fieldset-legend">Quality</legend>
           <select
-            defaultValue={CompressionQualityRange[3].value}
+            defaultValue={CompressionQualityRange[2].value}
             className="select w-full md:w-auto"
             onChange={(e) => setQuality(parseFloat(e.target.value))}
           >
