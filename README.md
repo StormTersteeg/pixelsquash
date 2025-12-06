@@ -5,8 +5,12 @@ A lightweight client-side web app for compressing images directly in your browse
 
 ## Tech Stack
 - React
+- TypeScript
 - Tailwind CSS
 - DaisyUI
+- File-Saver
+- JSZip
+- Zustand
 
 ## Features
 - Select images
