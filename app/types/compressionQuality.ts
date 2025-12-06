@@ -4,7 +4,7 @@ export default interface CompressionQuality {
 }
 
 export const CompressionQualityRange: CompressionQuality[] = [
-  ...Array(10).keys(),
+  ...Array(9).keys(),
 ]
   .reverse()
   .map((n) => {

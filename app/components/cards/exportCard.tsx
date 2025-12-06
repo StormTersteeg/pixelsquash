@@ -1,11 +1,9 @@
 import pkg from "file-saver";
-const { saveAs } = pkg;
-import JSZip from "jszip";
 import { useState, type HTMLAttributes } from "react";
 import { useImageStore } from "~/stores/imageStore";
 import { useOptionStore } from "~/stores/optionsStore";
 import { compressImage } from "~/utils/compression";
-import { totalSizeOf } from "~/utils/file";
+import { downloadAsZip, totalSizeOf } from "~/utils/file";
 
 export default function ExportCard({
   className,
@@ -21,38 +19,20 @@ export default function ExportCard({
   const [progress, setProgress] = useState(0);
 
   async function process() {
-    if (!images.length) return;
-
     setProgress(0);
     const compressedFiles: File[] = [];
 
     for (let i = 0; i < images.length; i++) {
-      const image = images[i];
-      const blob = await compressImage(image, maxWidth, maxHeight, quality);
-      const compressedFile = new File([blob], image.name, {
+      const blob = await compressImage(images[i], maxWidth, maxHeight, quality);
+      const compressedFile = new File([blob], images[i].name, {
         type: "image/jpeg",
       });
       compressedFiles.push(compressedFile);
-
-      const progressPercentage = ((i + 1) / images.length) * 100;
-      setProgress(progressPercentage);
+      setProgress(((i + 1) / images.length) * 100);
     }
 
     setCompressedImages(compressedFiles);
-  }
-
-  async function download() {
-    if (!compressedImages.length) return;
-
-    const zip = new JSZip();
-
-    for (const image of compressedImages) {
-      const buffer = await image.arrayBuffer();
-      zip.file(image.name, buffer);
-    }
-
-    const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, "images.zip");
+    setProgress(0);
   }
 
   return (
@@ -66,6 +46,7 @@ export default function ExportCard({
       <div className="flex mb-4">
         <button
           className="btn btn-info w-25 mr-4 shadow-none rounded-xl"
+          disabled={images.length == 0}
           onClick={process}
         >
           SQUASH
@@ -84,7 +65,7 @@ export default function ExportCard({
           compressedImages.length == 0 ||
           images.length != compressedImages.length
         }
-        onClick={download}
+        onClick={() => downloadAsZip(compressedImages, "images.zip")}
       >
         Download
       </button>

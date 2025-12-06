@@ -43,9 +43,8 @@ export default function OptionsCard({
               placeholder="1280"
               onChange={(e) => setMaxWidth(parseInt(e.target.value))}
             />
-            px
+            <span className="badge badge-neutral badge-xs">Optional</span>
           </label>
-          <span className="label">Optional</span>
         </fieldset>
 
         <fieldset className="fieldset">
@@ -57,9 +56,8 @@ export default function OptionsCard({
               placeholder="720"
               onChange={(e) => setMaxHeight(parseInt(e.target.value))}
             />
-            px
+            <span className="badge badge-neutral badge-xs">Optional</span>
           </label>
-          <span className="label">Optional</span>
         </fieldset>
       </div>
     </div>
