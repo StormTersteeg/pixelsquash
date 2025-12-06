@@ -1,9 +1,9 @@
-import pkg from "file-saver";
 import { useState, type HTMLAttributes } from "react";
 import { useImageStore } from "~/stores/imageStore";
 import { useOptionStore } from "~/stores/optionsStore";
 import { compressImage } from "~/utils/compression";
 import { downloadAsZip, totalSizeOf } from "~/utils/file";
+import ImagePreview from "../imagePreview";
 
 export default function ExportCard({
   className,
@@ -37,7 +37,7 @@ export default function ExportCard({
 
   return (
     <div
-      className={`bg-gray-900 rounded-none sm:rounded-xl p-6 py-4 w-full ${className ?? ""}`}
+      className={`bg-gray-900 rounded-none sm:rounded-xl p-6 pt-4 w-full ${className ?? ""}`}
     >
       <div className="text-center mb-4">
         <label className="text-xl font-bold">Compress</label>
@@ -70,20 +70,23 @@ export default function ExportCard({
         Download
       </button>
 
-      <div
-        role="alert"
-        className={`alert alert-success alert-dash ${compressedImages.length != 0 && images.length == compressedImages.length ? "" : "hidden"}`}
-      >
-        <span>
-          From {(totalSizeOf(images) / 1000000).toFixed(2) + "MB"} to{" "}
-          {(totalSizeOf(compressedImages) / 1000000).toFixed(2) + "MB"} (
-          {(
-            (totalSizeOf(compressedImages) / totalSizeOf(images)) *
-            100
-          ).toFixed(0)}
-          %)
-        </span>
-      </div>
+      {compressedImages.length != 0 &&
+        images.length == compressedImages.length && (
+          <>
+            <div role="alert" className="alert alert-success alert-dash mb-4">
+              <span>
+                From {(totalSizeOf(images) / 1000000).toFixed(2) + "MB"} to{" "}
+                {(totalSizeOf(compressedImages) / 1000000).toFixed(2) + "MB"} (
+                {(
+                  (totalSizeOf(compressedImages) / totalSizeOf(images)) *
+                  100
+                ).toFixed(0)}
+                %)
+              </span>
+            </div>
+            <ImagePreview images={compressedImages} />
+          </>
+        )}
     </div>
   );
 }

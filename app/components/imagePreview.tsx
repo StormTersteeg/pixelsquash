@@ -1,6 +1,6 @@
 type Props = {
   images: File[];
-  setImages: (images: File[]) => void;
+  setImages?: (images: File[]) => void;
 };
 
 export default function ImagePreview({ images, setImages }: Props) {
@@ -14,12 +14,16 @@ export default function ImagePreview({ images, setImages }: Props) {
             src={URL.createObjectURL(f)}
             alt={f.name}
           />
-          <button
-            onClick={() => setImages(images.filter((o) => o.name != f.name))}
-            className="btn btn-xs bg-red-700 border-none absolute top-0 right-0 m-1 shadow-none"
-          >
-            ×
-          </button>
+          {setImages && (
+            <button
+              onClick={() =>
+                setImages?.(images.filter((o) => o.name !== f.name))
+              }
+              className="btn btn-xs bg-red-700 border-none absolute top-0 right-0 m-1 shadow-none"
+            >
+              ×
+            </button>
+          )}
         </div>
       ))}
     </div>
