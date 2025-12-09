@@ -96,12 +96,14 @@ export default function ImageComparison({ images, onClose }: Props) {
           <img
             src={urls[0]}
             alt={images[0].name}
-            className="absolute inset-0 w-full h-full object-contain"
+            className="absolute inset-0 w-full h-full object-contain u"
+            draggable="false"
           />
           <img
             src={urls[1]}
             alt={images[1].name}
             className="absolute inset-0 w-full h-full object-contain"
+            draggable="false"
             style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
           />
           <div
