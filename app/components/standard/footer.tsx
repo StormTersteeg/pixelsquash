@@ -10,7 +10,14 @@ export default function Footer() {
       "
     >
       <aside>
-        <p>Created by Storm-Julian Tersteeg - 2025</p>
+        <a
+          href="https://github.com/StormTersteeg/pixelsquash"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="link link-hover"
+        >
+          Created by Storm-Julian Tersteeg - 2025
+        </a>
       </aside>
     </footer>
   );
