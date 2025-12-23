@@ -2,12 +2,17 @@ import type { HTMLAttributes } from "react";
 import ImageSelect from "../imageSelect";
 import ImagePreview from "../imagePreview";
 import { useImageStore } from "~/stores/imageStore";
+import { useShallow } from "zustand/shallow";
 
 export default function ImageSelectionCard({
   className,
 }: HTMLAttributes<HTMLDivElement>) {
-  const setImages = useImageStore((s) => s.setImages);
-  const images = useImageStore((s) => s.images);
+  const { images, setImages } = useImageStore(
+    useShallow((s) => ({
+      images: s.images,
+      setImages: s.setImages,
+    }))
+  );
 
   return (
     <div

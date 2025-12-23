@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react";
 import { download } from "~/utils/file";
 
 type Props = {
@@ -7,15 +8,22 @@ type Props = {
 };
 
 export default function ImagePreview({ images, setImages, onPreview }: Props) {
+  const urls = useMemo(
+    () => images.map((file) => URL.createObjectURL(file)),
+    [images]
+  );
+
+  useEffect(() => {
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [urls]);
+
   return (
     <div className="bg-gray-800 p-8 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 rounded-xl max-h-[384px] min-h-[256px] overflow-y-auto">
       {images.map((f, index) => (
-        <div className="relative" key={f.name}>
-          <img
-            className="rounded-md"
-            src={URL.createObjectURL(f)}
-            alt={f.name}
-          />
+        <div className="relative" key={`${f.name}-${f.lastModified}`}>
+          <img className="rounded-md" src={urls[index]} alt={f.name} />
 
           {setImages ? (
             <div
@@ -23,9 +31,7 @@ export default function ImagePreview({ images, setImages, onPreview }: Props) {
               data-tip="Remove"
             >
               <button
-                onClick={() =>
-                  setImages(images.filter((o) => o.name !== f.name))
-                }
+                onClick={() => setImages(images.filter((_, i) => i !== index))}
                 className="btn btn-xs bg-red-700 border-none shadow-none"
               >
                 ×

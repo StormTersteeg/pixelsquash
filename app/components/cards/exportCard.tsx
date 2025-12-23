@@ -1,44 +1,48 @@
-import { useState, type HTMLAttributes } from "react";
+import { useEffect, useState, type HTMLAttributes } from "react";
+import { useShallow } from "zustand/shallow";
 import { useImageStore } from "~/stores/imageStore";
 import { useOptionStore } from "~/stores/optionsStore";
-import { compressImage } from "~/utils/compression";
-import { downloadAsZip, totalSizeOf } from "~/utils/file";
+import { downloadAsZip } from "~/utils/file";
 import ImagePreview from "../imagePreview";
 import ImageComparison from "../imageComparison";
+import CompressionResult from "../compressionResult";
+import { useImageCompression } from "~/hooks/useImageCompression";
 
 export default function ExportCard({
   className,
 }: HTMLAttributes<HTMLDivElement>) {
-  const images = useImageStore((s) => s.images);
-  const compressedImages = useImageStore((s) => s.compressedImages);
-  const setCompressedImages = useImageStore((s) => s.setCompressedImages);
+  const { images, compressedImages, setCompressedImages } = useImageStore(
+    useShallow((s) => ({
+      images: s.images,
+      compressedImages: s.compressedImages,
+      setCompressedImages: s.setCompressedImages,
+    }))
+  );
 
-  const quality = useOptionStore((s) => s.quality);
-  const maxWidth = useOptionStore((s) => s.maxWidth);
-  const maxHeight = useOptionStore((s) => s.maxHeight);
+  const { quality, maxWidth, maxHeight } = useOptionStore(
+    useShallow((s) => ({
+      quality: s.quality,
+      maxWidth: s.maxWidth,
+      maxHeight: s.maxHeight,
+    }))
+  );
 
-  const [progress, setProgress] = useState(0);
+  const { compress, progress, isProcessing } = useImageCompression();
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
-  async function process() {
-    setProgress(0);
-    const compressedFiles: File[] = [];
-
-    for (let i = 0; i < images.length; i++) {
-      const blob = await compressImage(images[i], maxWidth, maxHeight, quality);
-      const compressedFile = new File([blob], images[i].name, {
-        type: "image/jpeg",
-      });
-      compressedFiles.push(compressedFile);
-      setProgress(((i + 1) / images.length) * 100);
-    }
-
-    setCompressedImages(compressedFiles);
-    setProgress(0);
-  }
+  useEffect(() => {
+    setCompressedImages([]);
+    setPreviewIndex(null);
+  }, [images, setCompressedImages]);
 
   const canShowResult =
     compressedImages.length !== 0 && images.length === compressedImages.length;
+
+  async function process() {
+    if (images.length === 0 || isProcessing) return;
+    const result = await compress(images, maxWidth, maxHeight, quality);
+    if (result.length) setCompressedImages(result);
+  }
 
   return (
     <div
@@ -51,7 +55,7 @@ export default function ExportCard({
       <div className="flex mb-4">
         <button
           className="btn btn-info w-25 mr-4 shadow-none rounded-xl"
-          disabled={images.length == 0}
+          disabled={images.length === 0 || isProcessing}
           onClick={process}
         >
           SQUASH
@@ -61,15 +65,12 @@ export default function ExportCard({
           className="progress progress-info w-75 h-10 grow"
           value={progress}
           max={100}
-        ></progress>
+        />
       </div>
 
       <button
-        className={`btn btn-success w-full shadow-none rounded-xl mb-4`}
-        disabled={
-          compressedImages.length == 0 ||
-          images.length != compressedImages.length
-        }
+        className="btn btn-success w-full shadow-none rounded-xl mb-4"
+        disabled={!canShowResult || isProcessing}
         onClick={() => downloadAsZip(compressedImages, "images.zip")}
       >
         Download All
@@ -77,17 +78,7 @@ export default function ExportCard({
 
       {canShowResult && (
         <>
-          <div role="alert" className="alert alert-success alert-dash mb-4">
-            <span>
-              From {(totalSizeOf(images) / 1000000).toFixed(2) + "MB"} to{" "}
-              {(totalSizeOf(compressedImages) / 1000000).toFixed(2) + "MB"} (
-              {(
-                100 -
-                (totalSizeOf(compressedImages) / totalSizeOf(images)) * 100
-              ).toFixed(0)}
-              %)
-            </span>
-          </div>
+          <CompressionResult original={images} compressed={compressedImages} />
 
           <ImagePreview
             images={compressedImages}

@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { useShallow } from "zustand/shallow";
 import { useGlobalStore } from "~/stores/globalStore";
 import { useOptionStore } from "~/stores/optionsStore";
 
@@ -6,10 +7,15 @@ export default function OptionsCard({
   className,
 }: HTMLAttributes<HTMLDivElement>) {
   const setOverflow = useGlobalStore((state) => state.setOverflow);
-  const quality = useOptionStore((s) => s.quality);
-  const setQuality = useOptionStore((s) => s.setQuality);
-  const setMaxWidth = useOptionStore((s) => s.setMaxWidth);
-  const setMaxHeight = useOptionStore((s) => s.setMaxHeight);
+  const { quality, setQuality, setMaxWidth, setMaxHeight } = useOptionStore(
+    useShallow((s) => ({
+      quality: s.quality,
+      setQuality: s.setQuality,
+      setMaxWidth: s.setMaxWidth,
+      setMaxHeight: s.setMaxHeight,
+    }))
+  );
+  const marks = [0, 20, 40, 60, 80, 99];
 
   return (
     <div
@@ -36,12 +42,12 @@ export default function OptionsCard({
               onPointerUp={() => setOverflow(true)}
               onPointerCancel={() => setOverflow(true)}
               onChange={(e) => {
-                setQuality(parseInt(e.target.value) / 100);
+                setQuality(e.target.valueAsNumber / 100);
               }}
             />
             <div className="flex justify-between px-2.5 mt-2 text-xs">
-              {Array.from({ length: 6 }, (_, i) => (
-                <span key={i}>{i != 5 ? i * 20 : 99}</span>
+              {marks.map((mark, i) => (
+                <span key={i}>{mark}</span>
               ))}
             </div>
           </div>
@@ -51,10 +57,10 @@ export default function OptionsCard({
           <legend className="fieldset-legend">Max width</legend>
           <label className="input w-full md:w-auto">
             <input
-              type="text"
+              type="number"
               className="grow"
               placeholder="1280"
-              onChange={(e) => setMaxWidth(parseInt(e.target.value))}
+              onChange={(e) => setMaxWidth(e.target.valueAsNumber)}
             />
             <span className="badge badge-neutral badge-xs">Optional</span>
           </label>
@@ -64,10 +70,10 @@ export default function OptionsCard({
           <legend className="fieldset-legend">Max height</legend>
           <label className="input w-full md:w-auto">
             <input
-              type="text"
+              type="number"
               className="grow"
               placeholder="720"
-              onChange={(e) => setMaxHeight(parseInt(e.target.value))}
+              onChange={(e) => setMaxHeight(e.target.valueAsNumber)}
             />
             <span className="badge badge-neutral badge-xs">Optional</span>
           </label>
